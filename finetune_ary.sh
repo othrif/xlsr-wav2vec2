@@ -3,7 +3,7 @@
 export model_path=$1
 mkdir -p ${model_path}
 
-python run_common_voice.py \
+python run_mgb5_ary.py \
     --dataloader_num_workers="8" \
     --model_name_or_path="facebook/wav2vec2-large-xlsr-53" \
     --dataset_config_name="ar" \

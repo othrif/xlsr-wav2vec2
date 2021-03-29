@@ -308,7 +308,8 @@ def main():
     # Get the datasets:
     train_dataset = datasets.load_dataset(
         #"common_voice", data_args.dataset_config_name, split=data_args.train_split_name
-        "ma_speech_corpus", split="train+dev"
+        #"ma_speech_corpus", split="train+dev"
+        "ma_speech_corpus", split="dev"
     )
     eval_dataset = datasets.load_dataset(
         #"common_voice", data_args.dataset_config_name, split="test"
@@ -320,7 +321,7 @@ def main():
     chars_to_ignore_regex = '[0\,\?\.\!\-\;\:\"\“\%\‘\”\�\n\@\ـ\؟\*\ \#\'\ \…\\u2003]'
 
     def remove_special_characters(batch):
-        batch["text"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).lower() + " "
+        batch["text"] = re.sub(chars_to_ignore_regex, "", batch["text"]).lower() + " "
         batch["text"] = re.sub('[a-zA-z]', '', batch["text"]).lower() + " "
         batch["text"] = re.sub('[ًٌٍَُِ~]', '', batch["text"]).lower() + " "
 
@@ -343,11 +344,11 @@ def main():
 
     # For arabic diacritics
     cleander = tn.Tnkeeh(remove_diacritics=True)
-    train_dataset = cleander.clean_hf_dataset(train_dataset, 'sentence')
-    eval_dataset = cleander.clean_hf_dataset(eval_dataset, 'sentence')
+    train_dataset = cleander.clean_hf_dataset(train_dataset, 'text')
+    eval_dataset = cleander.clean_hf_dataset(eval_dataset, 'text')
 
-    train_dataset = train_dataset.map(remove_special_characters, remove_columns=["sentence"])
-    eval_dataset = eval_dataset.map(remove_special_characters, remove_columns=["sentence"])
+    train_dataset = train_dataset.map(remove_special_characters) # , remove_columns=["text"])
+    eval_dataset = eval_dataset.map(remove_special_characters) #, remove_columns=["text"])
 
     def extract_all_chars(batch):
         all_text = " ".join(batch["text"])
@@ -420,7 +421,7 @@ def main():
     # Preprocessing the datasets.
     # We need to read the aduio files as arrays and tokenize the targets.
     def speech_file_to_array_fn(batch):
-        speech_array, sampling_rate = torchaudio.load(batch["path"])
+        speech_array, sampling_rate = torchaudio.load(batch["file"])
         #batch["speech"] = resampler(speech_array).squeeze().numpy()
         batch["speech"] = speech_array.squeeze().numpy()
         batch["sampling_rate"] = 16_000
