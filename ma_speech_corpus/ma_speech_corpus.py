@@ -73,30 +73,27 @@ class MoroccanSpeechCorpus(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
-        self.archive_path = '/home/othrif/projects/wav2vec2/finetune-xlsr/resources/data/ar/eg'
+        self.archive_path = '/home/othrif/projects/wav2vec2/finetune-xlsr/resources/data/ar/ma'
         return [
             datasets.SplitGenerator(name="train",
-                                    gen_kwargs={"archive_path": os.path.join(self.archive_path, "adapt")}),
+                                    gen_kwargs={"archive_path": os.path.join(self.archive_path, "train")}),
             datasets.SplitGenerator(name="dev", gen_kwargs={"archive_path": os.path.join(self.archive_path, "dev")}),
             datasets.SplitGenerator(name="test", gen_kwargs={"archive_path": os.path.join(self.archive_path, "test")}),
         ]
 
     def _generate_examples(self, archive_path):
         """Generate examples from a Librispeech archive_path."""
-        print(archive_path)
-
-        text_dir = os.path.join(archive_path, "Alaa")
+        text_dir = archive_path #os.path.join(archive_path, "Alaa")
         #text_dir = os.path.join(archive_path, "Mohamed")
-        wav_dir = os.path.join(self.archive_path, "wav")
+        wav_dir = os.path.join(archive_path, "wav")
 
-        segments_file = os.path.join(text_dir, "text_noverlap")
-        print(segments_file)
+        segments_file = os.path.join(text_dir, "text_noverlap.txt")
 
         with open(segments_file, "r", encoding="utf-8") as f:
             for _id, line in enumerate(f):
                 segment = line.split(' ')[0]
                 text = ' '.join(line.split(' ')[1:])
-                wav_file = '_'.join(segment.split('_')[:4]) + '.wav'
+                wav_file = '_'.join(segment.split('_')[:2]) + '.wav'
                 start, stop = segment.split('_')[4:6]
                 wav_path = os.path.join(wav_dir, wav_file)
                 if (wav_file not in os.listdir(wav_dir)): # (wav_file in corrupt_files) or
